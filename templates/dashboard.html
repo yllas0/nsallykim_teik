@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loblaw Bio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<style>
+  :root{
+    --bg:#ffffff;
+    --panel:#ffffff;
+    --panel-2:#eeeeee;
+    --rule: rgba(136, 144, 180, 0.3);
+    --accent:#5ac8fa;
+    --accent-2:#7c5cff;
+    --good:#3ddc97;
+    --warn:#ff6b6b;
+    --text:#284ca1;
+    --text-muted:#313131;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1000px 500px at 10% -10%, rgba(124,92,255,0.18), transparent 60%),
+      radial-gradient(900px 500px at 110% 10%, rgba(90,200,250,0.12), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Space Grotesk',sans-serif;
+    min-height:100vh;
+  }
+  .wrap{max-width:1100px; margin:0 auto; padding:36px 24px 80px;}
+  @media (max-width:640px){ .wrap{padding:22px 14px 56px;} }
+
+  .hero{padding:6px 0 26px; border-bottom:1px solid var(--rule); margin-bottom:26px;}
+  .org-name{
+    font-family:'Space Grotesk',sans-serif; font-weight:700;
+    font-size:clamp(28px,6vw,40px); margin:0; letter-spacing:-0.01em;
+    background:linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .tagline{color:var(--text-muted); font-size:14.5px; margin-top:6px;}
+
+  .tabs{display:flex; gap:6px; margin-bottom:24px; flex-wrap:wrap;}
+  .tab{
+    font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:500;
+    color:var(--text-muted); background:var(--panel); border:1px solid var(--rule);
+    padding:10px 18px; border-radius:99px; cursor:pointer; transition:all .15s ease;
+  }
+  .tab:hover{color:var(--text); border-color:var(--accent);}
+  .tab.active{color:var(--bg); background:var(--accent); border-color:var(--accent); font-weight:700;}
+
+  .panel{
+    background:var(--panel); border:1px solid var(--rule); border-radius:18px;
+    padding:26px 28px;
+  }
+  @media (max-width:640px){ .panel{padding:18px 16px;} }
+  .view{display:none;}
+  .view.active{display:block;}
+
+  h2.section-title{
+    font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:700;
+    margin:0 0 20px;
+  }
+  p.section-sub{color:var(--text-muted); font-size:13.5px; margin:0 0 20px;}
+
+
+  .stat-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:24px;}
+  .stat-card{background:var(--panel-2); border:1px solid var(--rule); border-radius:12px; padding:16px 18px;}
+  .stat-card .label{font-size:12px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em;}
+  .stat-card .value{font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700; margin-top:4px;}
+
+
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th{
+    text-align:left; padding:10px 12px; color:var(--text-muted);
+    font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em;
+    border-bottom:1px solid var(--rule); position:sticky; top:0; background:var(--panel);
+    cursor:pointer; user-select:none;
+  }
+  th:hover{color:var(--accent);}
+  td{padding:9px 12px; border-bottom:1px solid var(--rule);}
+  tr:hover td{background:rgba(255,255,255,0.02);}
+  .table-scroll{max-height:480px; overflow-y:auto; border:1px solid var(--rule); border-radius:10px;}
+  .search-row{margin-bottom:14px;}
+  .search-row input{
+    width:100%; max-width:320px; background:var(--panel-2); border:1px solid var(--rule);
+    color:var(--text); border-radius:8px; padding:9px 12px; font-family:'Space Grotesk'; font-size:13.5px;
+  }
+
+  .badge{padding:2px 9px; border-radius:99px; font-size:11.5px; font-weight:600;}
+  .badge.sig{background:rgba(61,220,151,0.15); color:var(--good);}
+  .badge.nonsig{background:rgba(255,255,255,0.06); color:var(--text-muted);}
+
+  .boxplot-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; margin-top:20px;}
+  .boxplot-cell{background:var(--panel-2); border:1px solid var(--rule); border-radius:12px; padding:8px; overflow:hidden; min-width:0;}
+
+  .chart-row{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:22px;}
+  @media (max-width:720px){ .chart-row{grid-template-columns:1fr;} }
+  .chart-box{background:var(--panel-2); border:1px solid var(--rule); border-radius:12px; padding:10px; overflow:hidden; min-width:0;}
+
+  .empty-note{color:var(--text-muted); font-style:italic; padding:20px 0;}
+  .foot-note{color:var(--text-muted); font-size:12px; margin-top:34px; text-align:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <h1 class="org-name">Cell Count Dashboard</h1>
+    <div class="tagline">Loblaw Bio</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="setTab('overview')">Frequency Overview</button>
+    <button class="tab" onclick="setTab('response')">Responder Analysis</button>
+    <button class="tab" onclick="setTab('subset')">Baseline Subset</button>
+  </div>
+
+  <div class="panel">
+    <div id="view-overview" class="view active">
+      <h2 class="section-title">Relative frequency by sample &amp; population</h2>
+      <div class="search-row">
+        <input id="freq-search" type="text" placeholder="Filter by sample or population…" oninput="renderFreqTable()">
+      </div>
+      <div class="table-scroll">
+        <table id="freq-table">
+          <thead>
+            <tr>
+              <th onclick="sortFreq('sample')">Sample</th>
+              <th onclick="sortFreq('total_count')">Total Count</th>
+              <th onclick="sortFreq('population')">Population</th>
+              <th onclick="sortFreq('count')">Count</th>
+              <th onclick="sortFreq('percentage')">Percentage</th>
+            </tr>
+          </thead>
+          <tbody id="freq-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="view-response" class="view">
+      <h2 class="section-title">Responders vs non-responders</h2>
+      <p class="section-sub">Melanoma · PBMC samples · miraclib treatment. Mann-Whitney U test per population.</p>
+      <div id="response-empty" class="empty-note" style="display:none;">No matching samples found for this filter combination.</div>
+      <div id="response-content">
+        <div class="table-scroll" style="max-height:260px;">
+          <table>
+            <thead>
+              <tr><th>Population</th><th>n (resp.)</th><th>n (non-resp.)</th><th>Median % (resp.)</th><th>Median % (non-resp.)</th><th>p-value</th><th>Significant</th></tr>
+            </thead>
+            <tbody id="stats-tbody"></tbody>
+          </table>
+        </div>
+        <div id="boxplot-grid" class="boxplot-grid"></div>
+      </div>
+    </div>
+
+    <div id="view-subset" class="view">
+      <h2 class="section-title">Baseline melanoma / PBMC / miraclib subset</h2>
+      <p class="section-sub">time_from_treatment_start = 0</p>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="label">Total samples</div><div class="value" id="stat-total-samples">–</div></div>
+        <div class="stat-card"><div class="label">Total subjects</div><div class="value" id="stat-total-subjects">–</div></div>
+        <div class="stat-card"><div class="label">Avg B cells (male responders)</div><div class="value" id="stat-avg-bcells">–</div></div>
+      </div>
+      <div class="chart-row">
+        <div class="chart-box" id="chart-project"></div>
+        <div class="chart-box" id="chart-response"></div>
+      </div>
+      <div class="chart-row">
+        <div class="chart-box" id="chart-sex"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const DATA = {{ data_json|safe }};
+
+
+const plotIds = []; 
+function setTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelector(`.tab[onclick="setTab('${name}')"]`).classList.add('active');
+  document.getElementById('view-'+name).classList.add('active');
+
+  requestAnimationFrame(() => {
+    plotIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.offsetParent !== null) {
+        Plotly.Plots.resize(el);
+      }
+    });
+  });
+}
+
+window.addEventListener('resize', () => {
+  plotIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.offsetParent !== null) {
+      Plotly.Plots.resize(el);
+    }
+  });
+});
+
+let freqSort = {key:'sample', dir:1};
+function sortFreq(key){
+  if(freqSort.key === key){ freqSort.dir *= -1; } else { freqSort = {key, dir:1}; }
+  renderFreqTable();
+}
+function renderFreqTable(){
+  const q = document.getElementById('freq-search').value.trim().toLowerCase();
+  let rows = DATA.frequency.filter(r =>
+    !q || r.sample.toLowerCase().includes(q) || r.population.toLowerCase().includes(q)
+  );
+  rows.sort((a,b)=>{
+    const va = a[freqSort.key], vb = b[freqSort.key];
+    if(typeof va === 'string') return va.localeCompare(vb) * freqSort.dir;
+    return (va - vb) * freqSort.dir;
+  });
+  const tbody = document.getElementById('freq-tbody');
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.sample}</td>
+      <td>${r.total_count.toLocaleString()}</td>
+      <td>${r.population}</td>
+      <td>${r.count.toLocaleString()}</td>
+      <td>${r.percentage.toFixed(2)}%</td>
+    </tr>
+  `).join('');
+}
+
+function renderResponseAnalysis(){
+  if(!DATA.response_stats || DATA.response_stats.length === 0){
+    document.getElementById('response-empty').style.display = 'block';
+    document.getElementById('response-content').style.display = 'none';
+    return;
+  }
+  const tbody = document.getElementById('stats-tbody');
+  tbody.innerHTML = DATA.response_stats.map(r => `
+    <tr>
+      <td>${r.population}</td>
+      <td>${r.n_responders}</td>
+      <td>${r.n_non_responders}</td>
+      <td>${r.median_responder_pct.toFixed(2)}%</td>
+      <td>${r.median_non_responder_pct.toFixed(2)}%</td>
+      <td>${r.p_value}</td>
+      <td><span class="badge ${r.significant ? 'sig' : 'nonsig'}">${r.significant ? 'p < 0.05' : 'n.s.'}</span></td>
+    </tr>
+  `).join('');
+
+  const grid = document.getElementById('boxplot-grid');
+  grid.innerHTML = '';
+  Object.entries(DATA.response_boxplot).forEach(([population, groups]) => {
+    const cell = document.createElement('div');
+    cell.className = 'boxplot-cell';
+    cell.id = 'box-' + population;
+    grid.appendChild(cell);
+    plotIds.push(cell.id);
+
+    const traceR = {y: groups.responder, type:'box', name:'Responder', marker:{color:'#3ddc97'}};
+    const traceN = {y: groups.non_responder, type:'box', name:'Non-responder', marker:{color:'#ff6b6b'}};
+    Plotly.newPlot(cell.id, [traceR, traceN], {
+      title: {text: population, font:{color:'#284ca1', size:14}},
+      paper_bgcolor:'transparent', plot_bgcolor:'transparent',
+      font:{color:'#284ca1', size:11},
+      margin:{t:36, b:30, l:40, r:10},
+      yaxis:{title:'% of sample', gridcolor:'rgba(255,255,255,0.06)'},
+      showlegend: false,
+      height: 260,
+    }, {displayModeBar:false, responsive:true});
+  });
+}
+
+function renderSubset(){
+  const b = DATA.baseline;
+  document.getElementById('stat-total-samples').textContent = b.total_samples;
+  document.getElementById('stat-total-subjects').textContent = b.total_subjects;
+  document.getElementById('stat-avg-bcells').textContent =
+    DATA.avg_b_cells_male_responders !== null ? DATA.avg_b_cells_male_responders.toFixed(2) : '–';
+
+  const barLayout = (title) => ({
+    title: {text:title, font:{color:'#284ca1', size:14}},
+    paper_bgcolor:'transparent', plot_bgcolor:'transparent',
+    font:{color:'#9aa4bf', size:11},
+    margin:{t:36, b:40, l:40, r:10},
+    yaxis:{gridcolor:'rgba(255,255,255,0.06)'},
+    height: 260,
+  });
+
+  Plotly.newPlot('chart-project',
+    [{x:Object.keys(b.by_project), y:Object.values(b.by_project), type:'bar', marker:{color:'#5ac8fa'}}],
+    barLayout('Samples per project'), {displayModeBar:false, responsive:true});
+  plotIds.push('chart-project');
+
+  Plotly.newPlot('chart-response',
+    [{x:Object.keys(b.by_response), y:Object.values(b.by_response), type:'bar', marker:{color:'#7c5cff'}}],
+    barLayout('Subjects by response'), {displayModeBar:false, responsive:true});
+  plotIds.push('chart-response');
+
+  Plotly.newPlot('chart-sex',
+    [{x:Object.keys(b.by_sex), y:Object.values(b.by_sex), type:'bar', marker:{color:'#3ddc97'}}],
+    barLayout('Subjects by sex'), {displayModeBar:false, responsive:true});
+  plotIds.push('chart-sex');
+}
+
+renderFreqTable();
+renderResponseAnalysis();
+renderSubset();
+</script>
+</body>
+</html>
