@@ -8,7 +8,11 @@ Each of these scripts cover each parts of the exam:
 - check.py was just a short script I wrote to double check that the data was loaded correctly.
 - dashboard.py - this combines all work from all parts and initializes the local server for my interactive dashboard using Flask.
 
-The Makefile in the root directory runs through each parts then runs the dashboard script.
+The Makefile in the root directory runs through each parts then runs the dashboard script. This line can be run on Terminal:
+```python
+make setup && make pipeline && make dashboard
+```
+Then ctrl+click on the link after "Running on" to open the dashboard running on port 5000.
 Thank you!
 
 Sally (Nahyun) Kim
